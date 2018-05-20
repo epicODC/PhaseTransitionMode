@@ -13,7 +13,7 @@ function welcomeinterface()
   println("=================================")
   println("         Ising Model")
   println("=================================")
-  println("! Please using Julia 0.6.2 !")
+  println("! Julia 0.6.2 supported ONLY!")
 end
 
 function periodicfieldassignment!(material_field::Array{Int8,2}) 
