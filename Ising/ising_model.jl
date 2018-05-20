@@ -8,12 +8,29 @@
 #         Sub Function        #
 ###############################
 function welcomeinterface()
-
-  println("")
-  println("=================================")
-  println("         Ising Model")
-  println("=================================")
-  println("! Julia 0.6.2 supported ONLY!")
+  println(" ") 
+  println(" ") 
+  println(" ") 
+  println("          ooooo  .oooooo..o ooooo ooooo      ooooo    oooooooooo   ")
+  println("          '888' d8P'    'Y8 '888'  888'88.    888   d88'     '88b  ")
+  println("           888  Y88bo.       888   888  888   888  d88             ")
+  println("           888   ':Y8888o.   888   888   888  888  888    o888888b ")
+  println("           888       ':Y88b  888   888    888 888  q88      88  8o ")
+  println("           888  oo     .d8P  888   888     888'88   q88.    88  8o ")
+  println("          o888o 8::88888P'  o888o o888o      o888o    o888888o  8o.")
+  println(" ")
+  println("                        Two Dimensional Ising Model ")
+  println("                             Simulation Program")
+  println(" ")  
+  println("                       LiYang (liyang6pi5@icloud.com)")
+  println("                         Last Update Date: 2018.5.20")
+  println("                               Version: 1.0.0")
+  println("                              Copyleft liyang")
+  println(" ")
+  println("                         Julia 0.6.2 Supported ONLY!")
+  println(" ")
+  println(" ")
+  println(">>> Calculation Process <<<")
 end
 
 function periodicfieldassignment!(material_field::Array{Int8,2}) 
@@ -67,7 +84,7 @@ function getmagneticmoment(material_field::Array{Int8,2})::Int64
   return magnetic_moment
 end
 
-function print_process_bar(finished_task, total_task)
+function printprocessbar(finished_task, total_task)
   const kProcessChangeInterval = 0.1
                                   # Process bar change kPCI% per time
   const kTotalSymbolNum        = 60
@@ -89,7 +106,7 @@ function print_process_bar(finished_task, total_task)
   end
 end
 
-function data_write_to_file(temperature, magnetic_moment, data_file_name)
+function datawritetofile(temperature, magnetic_moment, data_file_name)
   data_file = open(data_file_name,"a")
   output_char = "$(temperature)   $(magnetic_moment)\n"
   write(data_file,output_char)
@@ -101,16 +118,15 @@ end
 ###############################
 function main()
   # Parameter List
-  const kMaterialColumnNum   :: Int32   =  100
-  const kMaterialRowNum      :: Int32   =  100
-  const kPreheatingStepNum   :: Int32   =  5000000
-  const kSampleIntervalSteps :: Int32   =  1000
+  const kMaterialColumnNum   :: Int32   =  40
+  const kMaterialRowNum      :: Int32   =  40
+  const kPreheatingStepNum   :: Int32   =  500000
+  const kSampleIntervalSteps :: Int32   =  50
   const kSampleNum           :: Int32   =  500000
   const kMaxTemperature      :: Float16 =  3.5
   const kMinTemperature      :: Float16 =  1.0
   const kTemperatureStep     :: Float16 =  0.05
   const kDataFileName        :: String  =  "ising_Tc-M.data"
-  total_magnetic_moment :: Int128 = 0
 
   magnetic_moment_save_array = Array{Int64}(kSampleNum)
   magnetic_moment_save_array = zeros(magnetic_moment_save_array)
@@ -132,7 +148,7 @@ function main()
   # Main simulation start
   for current_temperature = kMaxTemperature:-kTemperatureStep:kMinTemperature
     println("")
-    println("Temperature : ", current_temperature)
+    println("Temperature     : ", current_temperature)
     # Initial the data save array 
     magnetic_moment_save_array = zeros(magnetic_moment_save_array)
     # Preheat
@@ -171,10 +187,10 @@ function main()
       end
       magnetic_moment_save_array[sample_loop_index] = 
                   getmagneticmoment(material_field)
-      print_process_bar(sample_loop_index,kSampleNum)
+      printprocessbar(sample_loop_index,kSampleNum)
     end
     magnetic_moment = abs(mean(magnetic_moment_save_array))
-    data_write_to_file(current_temperature,magnetic_moment,kDataFileName)
+    datawritetofile(current_temperature,magnetic_moment,kDataFileName)
     println("")
     println("Magnetic Moment : ", magnetic_moment)
   end
