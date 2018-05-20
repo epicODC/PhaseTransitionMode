@@ -108,7 +108,7 @@ end
 
 function datawritetofile(temperature, magnetic_moment, data_file_name)
   data_file = open(data_file_name,"a")
-  output_char = "$(temperature)   $(magnetic_moment)\n"
+  output_char = "$(temperature)  \t  $(magnetic_moment)\n"
   write(data_file,output_char)
   close(data_file)
 end
@@ -118,11 +118,11 @@ end
 ###############################
 function main()
   # Parameter List
-  const kMaterialColumnNum   :: Int32   =  40
-  const kMaterialRowNum      :: Int32   =  40
-  const kPreheatingStepNum   :: Int32   =  500000
-  const kSampleIntervalSteps :: Int32   =  50
-  const kSampleNum           :: Int32   =  500000
+  const kMaterialColumnNum   :: Int32   =  300
+  const kMaterialRowNum      :: Int32   =  300
+  const kPreheatingStepNum   :: Int32   =  50000000
+  const kSampleIntervalSteps :: Int32   =  100
+  const kSampleNum           :: Int32   =  50000000
   const kMaxTemperature      :: Float16 =  3.5
   const kMinTemperature      :: Float16 =  1.0
   const kTemperatureStep     :: Float16 =  0.05
@@ -148,7 +148,9 @@ function main()
   # Main simulation start
   for current_temperature = kMaxTemperature:-kTemperatureStep:kMinTemperature
     println("")
-    println("Temperature     : ", current_temperature)
+    println("Temperature      :  ", current_temperature, 
+            " \t (",kMaxTemperature," : ",-kTemperatureStep,
+            " : ",kMinTemperature,")")
     # Initial the data save array 
     magnetic_moment_save_array = zeros(magnetic_moment_save_array)
     # Preheat
@@ -192,13 +194,14 @@ function main()
     magnetic_moment = abs(mean(magnetic_moment_save_array))
     datawritetofile(current_temperature,magnetic_moment,kDataFileName)
     println("")
-    println("Magnetic Moment : ", magnetic_moment)
+    println("Magnetic Moment  :  ", magnetic_moment)
   end
 
   println("")
-  println(">>> Program Complete Successfully! <<<")
+  println(">>> Program Complete! <<<")
   println("> The calculation result has been saved in file: '",
           kDataFileName,"'")
+  println("")
 end
 
 ###############################
