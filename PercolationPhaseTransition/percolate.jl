@@ -168,16 +168,16 @@ function mazewaytocheck(enlarge_material_field::Array{Int8,2},
       test_direction_order[1] = temp_array
     end
 
-    if enlarge_material_field[current_row_index+test_direction_order[1][1],
-                      current_column_index+test_direction_order[1][2]] == 0
-      current_row_index += test_direction_order[1][1]
-      current_column_index += test_direction_order[1][2]
+    if enlarge_material_field[current_row_index+test_direction_order[2][1],
+                      current_column_index+test_direction_order[2][2]] == 0
+      current_row_index += test_direction_order[2][1]
+      current_column_index += test_direction_order[2][2]
     end
 
-    if enlarge_material_field[current_row_index+test_direction_order[1][1],
-                      current_column_index+test_direction_order[1][2]] == 0
-      current_row_index += test_direction_order[1][1]
-      current_column_index += test_direction_order[1][2]
+    if enlarge_material_field[current_row_index+test_direction_order[3][1],
+                      current_column_index+test_direction_order[3][2]] == 0
+      current_row_index += test_direction_order[3][1]
+      current_column_index += test_direction_order[3][2]
 
       temp_array = test_direction_order[1]
       test_direction_order[1] = test_direction_order[2]
