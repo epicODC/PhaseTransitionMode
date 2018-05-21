@@ -42,7 +42,7 @@ end
 
 ########
 function getpercolrationpattern!(material_field::Array{Int8,2}, 
-                                  void_possible::Float64)
+                                  void_possible::Float16)
   material_size = size(material_field)
   material_matrix_row_num = material_size[1]
   material_matrix_column_num = material_size[2]
@@ -154,11 +154,13 @@ end
 
 function main()
   # Parameter List
-  const kMaterialFieldRowNum          ::  Int32    =  100
-  const kMaterialFieldColumnNum       ::  Int32    =  100
+  const kMaterialFieldRowNum          ::  Int32    =  30
+  const kMaterialFieldColumnNum       ::  Int32    =  30
+  const kHollowMinPossibility         ::  Float16  =  0.0
+  const kHollowMaxPossibility         ::  Float16  =  1.0
   const kHollowPossibilityChangeRate  ::  Float16  =  0.01
-  const kSamplingNum                  ::  Int64    =  100000
-  const kDataSaveFileName             ::  String   =  "percolation.data"
+  const kSamplingNum                  ::  Int64    =  5000000
+  const kDataSaveFileName             ::  String   =  "percolate.data"
   
   material_field = Array{Int8}(kMaterialFieldRowNum+2,kMaterialFieldColumnNum+2)
 
@@ -170,9 +172,12 @@ function main()
   material_field = ones(material_field)
 
   # main simulation 
-  for hollow_possibility = 0.00:kHollowPossibilityChangeRate:1.00
+  for hollow_possibility = 
+        kHollowMinPossibility:kHollowPossibilityChangeRate:kHollowMaxPossibility
     println(" ")
-    println("Hollow Possibility      :  $(hollow_possibility)")
+    println("Hollow Possibility      :  $(hollow_possibility) \t 
+            ($(kHollowMinPossibility) : $(kHollowPossibilityChangeRate) : 
+             $(kHollowMaxPossibility))")
     # Init the permeation possibility value
     permeation_counter = 0
     for simulation_sampling_loop = 1:kSamplingNum
