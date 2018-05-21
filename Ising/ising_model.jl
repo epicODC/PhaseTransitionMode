@@ -17,14 +17,14 @@ function welcomeinterface()
   println("           888   ':Y8888o.   888   888   888  888  888    o888888b ")
   println("           888       ':Y88b  888   888    888 888  q88      88  8o ")
   println("           888  oo     .d8P  888   888     888'88   q88.    88  8o ")
-  println("          o888o 8::88888P'  o888o o888o      o888o    o888888o  8o.")
+  println("          o888o 8::88888P'  o888o o888o      o888o    o888888o  oo ")
   println(" ")
   println("                        Two Dimensional Ising Model ")
   println("                             Simulation Program")
   println(" ")  
   println("                       LiYang (liyang6pi5@icloud.com)")
-  println("                         Last Update Date: 2018.5.20")
-  println("                               Version: 1.0.0")
+  println("                         Last Update Date: 2018.5.21")
+  println("                               Version: 1.0.2")
   println("                              Copyleft liyang")
   println(" ")
   println("                         Julia 0.6.2 Supported ONLY!")
@@ -36,12 +36,12 @@ end
 function periodicfieldassignment!(material_field::Array{Int8,2}) 
   material_size = size(material_field)
   material_matrix_row_num = material_size[1]
-  material_matrix_column_nim = material_size[2]
+  material_matrix_column_num = material_size[2]
 
   material_field[1,:] = material_field[material_matrix_row_num-1,:]
   material_field[material_matrix_row_num,:] = material_field[2,:]
-  material_field[:,1] = material_field[:,material_matrix_column_nim-1]
-  material_field[:,material_matrix_column_nim] = material_field[:,2]
+  material_field[:,1] = material_field[:,material_matrix_column_num-1]
+  material_field[:,material_matrix_column_num] = material_field[:,2]
   #return material_field
 end
 
@@ -118,10 +118,10 @@ end
 ###############################
 function main()
   # Parameter List
-  const kMaterialColumnNum   :: Int32   =  100
-  const kMaterialRowNum      :: Int32   =  100
-  const kPreheatingStepNum   :: Int32   =  5000000
-  const kSampleIntervalSteps :: Int32   =  1000
+  const kMaterialColumnNum   :: Int32   =  30
+  const kMaterialRowNum      :: Int32   =  30
+  const kPreheatingStepNum   :: Int32   =  500000
+  const kSampleIntervalSteps :: Int32   =  100
   const kSampleNum           :: Int32   =  500000
   const kMaxTemperature      :: Float16 =  3.5
   const kMinTemperature      :: Float16 =  1.0
