@@ -62,6 +62,7 @@ function takeonestepaway!(material_field::Array{Int8,2},
                   preposition_row_index,
                preposition_column_index)
   material_field[preposition_row_index,preposition_column_index] = 2
+                                                    # 2 for path walk through
   # If at the button
   if preposition_row_index == size(material_field)[1]-1
     return true
