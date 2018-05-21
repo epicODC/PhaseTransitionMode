@@ -42,23 +42,23 @@ function periodicfieldassignment!(material_field::Array{Int8,2})
   material_field[material_matrix_row_num,:] = material_field[2,:]
   material_field[:,1] = material_field[:,material_matrix_column_nim-1]
   material_field[:,material_matrix_column_nim] = material_field[:,2]
-
-  return material_field
+  #return material_field
 end
 
 function acceptspinrevers(material_field::Array{Int8,2},
-                               row_index,
-                            column_index,
+                               row_index::Int64,
+                            column_index::Int64,
                              temperature::Float16)
                              
-  delta_energy = -2 * -1 * material_field[row_index,column_index] * 
-                          (material_field[row_index-1,column_index] +
-                           material_field[row_index+1,column_index] + 
-                           material_field[row_index,column_index-1] +
-                           material_field[row_index,column_index+1]) 
+  delta_energy = (-2) * (-1) * material_field[row_index,column_index] * 
+                              (material_field[row_index-1,column_index] +
+                               material_field[row_index+1,column_index] + 
+                               material_field[row_index,column_index-1] +
+                               material_field[row_index,column_index+1]) 
   if delta_energy > 0
-    reverse_possibility = exp(-1.0 * delta_energy / temperature)
-    if rand() < reverse_possibility
+    reverse_possibility = exp(-delta_energy / temperature)
+    random_pickup_point = rand()
+    if random_pickup_point < reverse_possibility
       return true
     else
       return false
@@ -73,9 +73,9 @@ function getmagneticmoment(material_field::Array{Int8,2})::Int64
 
   material_size = size(material_field)
   material_matrix_row_num = material_size[1]
-  material_matrix_column_nim = material_size[2]
+  material_matrix_column_num = material_size[2]
 
-  for column_index = 2:material_matrix_column_nim-1
+  for column_index = 2:material_matrix_column_num-1
     for row_index = 2:material_matrix_row_num-1
       magnetic_moment += material_field[row_index,column_index]
     end
@@ -85,9 +85,9 @@ function getmagneticmoment(material_field::Array{Int8,2})::Int64
 end
 
 function printprocessbar(finished_task, total_task)
-  const kProcessChangeInterval = 0.1
-                                  # Process bar change kPCI% per time
-  const kTotalSymbolNum        = 60
+  const kProcessChangeInterval  =  0.1
+                          # Process bar change kPCI% per time
+  const kTotalSymbolNum         =  60
 
   process_degree = 1.0 * finished_task / total_task
   task_num_print_interval = 
@@ -118,11 +118,11 @@ end
 ###############################
 function main()
   # Parameter List
-  const kMaterialColumnNum   :: Int32   =  300
-  const kMaterialRowNum      :: Int32   =  300
-  const kPreheatingStepNum   :: Int32   =  50000000
-  const kSampleIntervalSteps :: Int32   =  100
-  const kSampleNum           :: Int32   =  50000000
+  const kMaterialColumnNum   :: Int32   =  100
+  const kMaterialRowNum      :: Int32   =  100
+  const kPreheatingStepNum   :: Int32   =  5000000
+  const kSampleIntervalSteps :: Int32   =  1000
+  const kSampleNum           :: Int32   =  500000
   const kMaxTemperature      :: Float16 =  3.5
   const kMinTemperature      :: Float16 =  1.0
   const kTemperatureStep     :: Float16 =  0.05
@@ -143,7 +143,7 @@ function main()
       material_field[row_index,column_index]=rand(-1:2:1)
     end
   end
-  material_field = periodicfieldassignment!(material_field)
+  periodicfieldassignment!(material_field)
 
   # Main simulation start
   for current_temperature = kMaxTemperature:-kTemperatureStep:kMinTemperature
@@ -151,14 +151,14 @@ function main()
     println("Temperature      :  ", current_temperature, 
             " \t (",kMaxTemperature," : ",-kTemperatureStep,
             " : ",kMinTemperature,")")
+
     # Initial the data save array 
     magnetic_moment_save_array = zeros(magnetic_moment_save_array)
     # Preheat
     for preheat_loop = 1:kPreheatingStepNum 
-      random_row_index = rand(2:kMaterialRowNum-1)
-      random_column_index = rand(2:kMaterialColumnNum-1)
-      
-      # If the convert can be accecpt
+      random_row_index = rand(2:kMaterialRowNum+1)
+      random_column_index = rand(2:kMaterialColumnNum+1)
+      # If the reverse can be accecpt
       if acceptspinrevers(material_field,
                           random_row_index,
                           random_column_index,
@@ -167,16 +167,16 @@ function main()
         material_field[random_row_index,random_column_index] = 
         material_field[random_row_index,random_column_index] * (-1) 
       end
-      material_field = periodicfieldassignment!(material_field)
+      periodicfieldassignment!(material_field)
     end
     
     # Start sampling 
     for sample_loop_index = 1:kSampleNum
       for step_skip_loop = 1:kSampleIntervalSteps
-        random_row_index = rand(2:kMaterialRowNum-1)
-        random_column_index = rand(2:kMaterialColumnNum-1)
+        random_row_index = rand(2:kMaterialRowNum+1)
+        random_column_index = rand(2:kMaterialColumnNum+1)
         
-        # If the convert can be accecpt
+        # If the reverse can be accecpt
         if acceptspinrevers(material_field,
                             random_row_index,
                             random_column_index,
@@ -185,7 +185,7 @@ function main()
           material_field[random_row_index,random_column_index] = 
           material_field[random_row_index,random_column_index] * (-1) 
         end
-        material_field = periodicfieldassignment!(material_field)
+        periodicfieldassignment!(material_field)
       end
       magnetic_moment_save_array[sample_loop_index] = 
                   getmagneticmoment(material_field)
@@ -207,4 +207,5 @@ end
 ###############################
 #       Main Execution        #
 ###############################
+
 main()
