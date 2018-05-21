@@ -14,16 +14,17 @@ function welcomeinterface()
   println(" ") 
   println(" ") 
   println(" ") 
-  println("                        ## ############ #### ######## ")
-  println("                        ##### ## ## ### #### ######## ")
-  println("                        ###### ########   ###### #### ")
-  println("                        ########## ###### ###### #### ")
-  println("                        #### #### ##### ###### ### ## ")
-  println("                         ### ## ######## ##### ###### ")
-  println("                        #### ###### ##### #### # #### ")
-  println("                        #### ######  ### ##### ###### ")
-  println("                        ####### ### ##### #### ## ### ")
-  println("                        #### ###### ##### #### #### # ")
+  for pattern_row_index = 1:12
+    print("                   ")
+    for pattern_column_index = 1:40
+      if rand() < 0.618
+        print(" ")
+      else
+        print("#")
+      end
+    end
+    print("\n")
+  end 
   println(" ")
   println("                        Percollation Phase Transition ")
   println("                             Simulation Program")
