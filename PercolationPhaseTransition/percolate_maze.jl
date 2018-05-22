@@ -60,66 +60,6 @@ function getpercolrationpattern!(material_field::Array{Int8,2},
 end
 
 ########
-#=
-function takeonestepaway!(material_field::Array{Int8,2},
-                  preposition_row_index,
-               preposition_column_index)
-  material_field[preposition_row_index,preposition_column_index] = 2
-                                                    # 2 for path walk through
-  # If at the bottom
-  if preposition_row_index == size(material_field)[1]-1
-    return true
-  end
-  # go left
-  if material_field[preposition_row_index,preposition_column_index-1] == 0
-    if takeonestepaway!(material_field,
-                        preposition_row_index,
-                        preposition_column_index-1)
-      return true
-    end
-  end
-  # go down
-  if material_field[preposition_row_index+1,preposition_column_index] == 0
-    if takeonestepaway!(material_field,
-                        preposition_row_index+1,
-                        preposition_column_index)
-    return true
-    end
-  end
-  # go right
-  if material_field[preposition_row_index,preposition_column_index+1] == 0
-    if takeonestepaway!(material_field,
-                        preposition_row_index,
-                        preposition_column_index+1)
-    return true
-    end
-  end
-  # go up
-  if material_field[preposition_row_index-1,preposition_column_index] == 0
-    if takeonestepaway!(material_field,
-                        preposition_row_index-1,
-                        preposition_column_index)
-    return true
-    end
-  end
-  # dead end ...
-  return false
-end
-
-########
-function patternispermeable(material_field::Array{Int8,2})::Bool
-  for column_index = 2:size(material_field)[2]-1
-    if material_field[2,column_index] == 0 && 
-       takeonestepaway!(material_field,2,column_index)
-      return true
-    end
-  end
-
-  return false
-end
-=#
-
-########
 function enlargethefield(material_field::Array{Int8,2})
   material_matrix_row_num = size(material_field)[1]
   material_matrix_column_num = size(material_field)[2]
@@ -149,6 +89,7 @@ function mazewaytocheck(enlarge_material_field::Array{Int8,2},
                              current_row_index::Int64,
                           current_column_index::Int64)::Bool
 #=
+  # origin algorithem (easy to understand)
   test_direction_order = [[0,-1],  # go left
                           [1,0],   # go down
                           [0,1],   # go right
@@ -191,7 +132,7 @@ function mazewaytocheck(enlarge_material_field::Array{Int8,2},
     end
 =#
   
-  # algorithem update
+  # fast algorithem update (but more unreadable)
   test_direction_order = [0,1,0,-1]
   while true
     if enlarge_material_field[current_row_index+test_direction_order[1],
@@ -278,13 +219,13 @@ end
 
 function main()
   # Parameter List
-  const kMaterialFieldRowNum          ::  Int32    =  100
-  const kMaterialFieldColumnNum       ::  Int32    =  100
+  const kMaterialFieldRowNum          ::  Int32    =  30
+  const kMaterialFieldColumnNum       ::  Int32    =  30
   const kHollowMinPossibility         ::  Float16  =  0.0
   const kHollowMaxPossibility         ::  Float16  =  1.0
-  const kHollowPossibilityChangeRate  ::  Float16  =  0.01
-  const kSamplingNum                  ::  Int64    =  1000000
-  const kDataSaveFileName             ::  String   =  "percolate_speed.data"
+  const kHollowPossibilityChangeRate  ::  Float16  =  0.05
+  const kSamplingNum                  ::  Int64    =  2000000
+  const kDataSaveFileName             ::  String   =  "percolate_maze.data"
   
   material_field = Array{Int8}(kMaterialFieldRowNum+2,kMaterialFieldColumnNum+2)
 
@@ -299,7 +240,7 @@ function main()
   for hollow_possibility = 
         kHollowMinPossibility:kHollowPossibilityChangeRate:kHollowMaxPossibility
     println(" ")
-    println("Hollow Possibility      :  $(hollow_possibility) \t ($(kHollowMinPossibility) : $(kHollowPossibilityChangeRate) : $(kHollowMaxPossibility))")
+    println("Hollow Possibility      :  $(hollow_possibility)  \t ($(kHollowMinPossibility) : $(kHollowPossibilityChangeRate) : $(kHollowMaxPossibility))")
     # Init the permeation possibility value
     permeation_counter = 0
     for simulation_sampling_loop = 1:kSamplingNum

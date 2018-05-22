@@ -5,7 +5,7 @@
 # Description 
  Two different algoritem for the same precolation calculation. 
 
- - Speed Algorithem
+ - Mazes Algorithem
  - Recursion Algorithem 
 
  use the command below to enable the comparation between those two algorithems.

@@ -159,8 +159,8 @@ function main()
   const kMaterialFieldColumnNum       ::  Int32    =  30
   const kHollowMinPossibility         ::  Float16  =  0.0
   const kHollowMaxPossibility         ::  Float16  =  1.0
-  const kHollowPossibilityChangeRate  ::  Float16  =  0.01
-  const kSamplingNum                  ::  Int64    =  5000000
+  const kHollowPossibilityChangeRate  ::  Float16  =  0.05
+  const kSamplingNum                  ::  Int64    =  2000000
   const kDataSaveFileName             ::  String   =  "percolate_recursion.data"
   
   material_field = Array{Int8}(kMaterialFieldRowNum+2,kMaterialFieldColumnNum+2)
@@ -176,9 +176,7 @@ function main()
   for hollow_possibility = 
         kHollowMinPossibility:kHollowPossibilityChangeRate:kHollowMaxPossibility
     println(" ")
-    println("Hollow Possibility      :  $(hollow_possibility) \t 
-            ($(kHollowMinPossibility) : $(kHollowPossibilityChangeRate) : 
-             $(kHollowMaxPossibility))")
+    println("Hollow Possibility      :  $(hollow_possibility) \t ($(kHollowMinPossibility) : $(kHollowPossibilityChangeRate) : $(kHollowMaxPossibility))")
     # Init the permeation possibility value
     permeation_counter = 0
     for simulation_sampling_loop = 1:kSamplingNum
