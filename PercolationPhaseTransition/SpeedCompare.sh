@@ -18,5 +18,5 @@ echo "Total Recursion Algorithem CPU Time: ${julia_rec_used_time}"
 
 echo $(date) >> TEST.result
 echo "Recursion Algorithem CPU Time(s)  :  ${julia_rec_used_time}" >> TEST.result 
-echo "    maze Algorithem CPU Time(s)  :  ${julia_spd_used_time}" >> TEST.result
+echo "    Maze Algorithem CPU Time(s)  :  ${julia_spd_used_time}" >> TEST.result
 echo "" >> TEST.result
