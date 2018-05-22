@@ -147,6 +147,7 @@ end
 function mazewaytocheck(enlarge_material_field::Array{Int8,2},
                              current_row_index::Int64,
                           current_column_index::Int64)::Bool
+#=
   test_direction_order = [[0,-1],  # go left
                           [1,0],   # go down
                           [0,1],   # go right
@@ -187,8 +188,32 @@ function mazewaytocheck(enlarge_material_field::Array{Int8,2},
       test_direction_order[3] = test_direction_order[4]
       test_direction_order[4] = temp_array
     end
+=#
+  
+  # algorithem update
+  test_direction_order = [0,1,0,-1]
+  while true
+    if enlarge_material_field[current_row_index+test_direction_order[1],
+                      current_column_index+test_direction_order[4]] == 0
+      current_row_index += test_direction_order[1]
+      current_column_index += test_direction_order[4]
 
-    #println(test_direction_order[1])
+      prepend!(test_direction_order,test_direction_order[4])
+      deleteat!(test_direction_order,5)
+
+    elseif enlarge_material_field[current_row_index+test_direction_order[2],
+                      current_column_index+test_direction_order[1]] == 0
+      current_row_index += test_direction_order[2]
+      current_column_index += test_direction_order[1]
+
+    elseif enlarge_material_field[current_row_index+test_direction_order[3],
+                      current_column_index+test_direction_order[2]] == 0
+      current_row_index += test_direction_order[3]
+      current_column_index += test_direction_order[2]
+      
+      append!(test_direction_order,test_direction_order[1])
+      deleteat!(test_direction_order,1)
+    end
 
     if current_row_index == 3
       break
@@ -252,13 +277,13 @@ end
 
 function main()
   # Parameter List
-  const kMaterialFieldRowNum          ::  Int32    =  30
-  const kMaterialFieldColumnNum       ::  Int32    =  30
+  const kMaterialFieldRowNum          ::  Int32    =  100
+  const kMaterialFieldColumnNum       ::  Int32    =  100
   const kHollowMinPossibility         ::  Float16  =  0.0
   const kHollowMaxPossibility         ::  Float16  =  1.0
   const kHollowPossibilityChangeRate  ::  Float16  =  0.01
-  const kSamplingNum                  ::  Int64    =  100000
-  const kDataSaveFileName             ::  String   =  "percolate.data"
+  const kSamplingNum                  ::  Int64    =  1000000
+  const kDataSaveFileName             ::  String   =  "percolate_speed.data"
   
   material_field = Array{Int8}(kMaterialFieldRowNum+2,kMaterialFieldColumnNum+2)
 
