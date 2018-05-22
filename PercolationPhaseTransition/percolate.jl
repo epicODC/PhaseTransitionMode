@@ -127,8 +127,8 @@ function enlargethefield(material_field::Array{Int8,2})
                                        2*material_matrix_column_num)
   enlarge_material_field = ones(enlarge_material_field)
 
-  for column_index = 1:material_matrix_column_num
-    for row_index = 1:material_matrix_row_num
+  for column_index = 2:material_matrix_column_num-1
+    for row_index = 2:material_matrix_row_num-1
       enlarge_material_field[2*row_index-1,2*column_index-1] = 
         material_field[row_index,column_index]
       enlarge_material_field[2*row_index,2*column_index-1] = 
@@ -145,8 +145,8 @@ end
 
 ########
 function mazewaytocheck(enlarge_material_field::Array{Int8,2},
+                             current_row_index::Int64,
                           current_column_index::Int64)::Bool
-  current_row_index = 3
   test_direction_order = [[0,-1],  # go left
                           [1,0],   # go down
                           [0,1],   # go right
@@ -166,15 +166,13 @@ function mazewaytocheck(enlarge_material_field::Array{Int8,2},
       temp_array = test_direction_order[2]
       test_direction_order[2] = test_direction_order[1]
       test_direction_order[1] = temp_array
-    end
 
-    if enlarge_material_field[current_row_index+test_direction_order[2][1],
+    elseif enlarge_material_field[current_row_index+test_direction_order[2][1],
                       current_column_index+test_direction_order[2][2]] == 0
       current_row_index += test_direction_order[2][1]
       current_column_index += test_direction_order[2][2]
-    end
 
-    if enlarge_material_field[current_row_index+test_direction_order[3][1],
+    elseif enlarge_material_field[current_row_index+test_direction_order[3][1],
                       current_column_index+test_direction_order[3][2]] == 0
       current_row_index += test_direction_order[3][1]
       current_column_index += test_direction_order[3][2]
@@ -190,6 +188,8 @@ function mazewaytocheck(enlarge_material_field::Array{Int8,2},
       test_direction_order[4] = temp_array
     end
 
+    #println(test_direction_order[1])
+
     if current_row_index == 3
       break
     elseif current_row_index == size(enlarge_material_field)[1]-3
@@ -203,9 +203,10 @@ end
 ########
 function patternispermeable(material_field::Array{Int8,2})::Bool
   enlarge_material_field = enlargethefield(material_field)
-
-  for column_index = 3:2:size(enlarge_material_field)[2]-3
-    if mazewaytocheck(enlarge_material_field, column_index)
+  init_row_index = 3
+  for column_index = init_row_index:2:size(enlarge_material_field)[2]-3
+    if enlarge_material_field[init_row_index,column_index] == 0 &&  
+       mazewaytocheck(enlarge_material_field,init_row_index,column_index)
       return true
     end
   end
@@ -251,8 +252,8 @@ end
 
 function main()
   # Parameter List
-  const kMaterialFieldRowNum          ::  Int32    =  100
-  const kMaterialFieldColumnNum       ::  Int32    =  100
+  const kMaterialFieldRowNum          ::  Int32    =  30
+  const kMaterialFieldColumnNum       ::  Int32    =  30
   const kHollowMinPossibility         ::  Float16  =  0.0
   const kHollowMaxPossibility         ::  Float16  =  1.0
   const kHollowPossibilityChangeRate  ::  Float16  =  0.01
