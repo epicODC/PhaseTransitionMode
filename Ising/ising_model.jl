@@ -52,10 +52,10 @@ function acceptspinrevers(material_field::Array{Int8,2},
                  external_magnetic_field::Float16)
                              
   delta_energy = ((-2) * (-1) * material_field[row_index,column_index] * 
-                              (material_field[row_index-1,column_index] +
-                               material_field[row_index+1,column_index] + 
-                               material_field[row_index,column_index-1] +
-                               material_field[row_index,column_index+1])) +
+                               (material_field[row_index-1,column_index] +
+                                material_field[row_index+1,column_index] + 
+                                material_field[row_index,column_index-1] +
+                                material_field[row_index,column_index+1])) +
                  ((-2) * (-1) * material_field[row_index,column_index] *
                                 external_magnetic_field)
   if delta_energy > 0
