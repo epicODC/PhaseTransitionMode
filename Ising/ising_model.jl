@@ -23,8 +23,8 @@ function welcomeinterface()
   println("                             Simulation Program")
   println(" ")  
   println("                       LiYang (liyang6pi5@icloud.com)")
-  println("                         Last Update Date: 2018.5.21")
-  println("                               Version: 1.0.2")
+  println("                         Last Update Date: 2018.5.24")
+  println("                               Version: 1.1.0")
   println("                              Copyleft liyang")
   println(" ")
   println("                         Julia 0.6.2 Supported ONLY!")
@@ -48,13 +48,16 @@ end
 function acceptspinrevers(material_field::Array{Int8,2},
                                row_index::Int64,
                             column_index::Int64,
-                             temperature::Float16)
+                             temperature::Float16,
+                 external_magnetic_field::Float16)
                              
-  delta_energy = (-2) * (-1) * material_field[row_index,column_index] * 
+  delta_energy = ((-2) * (-1) * material_field[row_index,column_index] * 
                               (material_field[row_index-1,column_index] +
                                material_field[row_index+1,column_index] + 
                                material_field[row_index,column_index-1] +
-                               material_field[row_index,column_index+1]) 
+                               material_field[row_index,column_index+1])) +
+                 ((-2) * (-1) * material_field[row_index,column_index] *
+                                external_magnetic_field)
   if delta_energy > 0
     reverse_possibility = exp(-delta_energy / temperature)
     random_pickup_point = rand()
@@ -118,15 +121,16 @@ end
 ###############################
 function main()
   # Parameter List
-  const kMaterialColumnNum   :: Int32   =  30
-  const kMaterialRowNum      :: Int32   =  30
-  const kPreheatingStepNum   :: Int32   =  500000
-  const kSampleIntervalSteps :: Int32   =  100
-  const kSampleNum           :: Int32   =  500000
-  const kMaxTemperature      :: Float16 =  3.5
-  const kMinTemperature      :: Float16 =  1.0
-  const kTemperatureStep     :: Float16 =  0.05
-  const kDataFileName        :: String  =  "ising_Tc-M.data"
+  const kMaterialColumnNum     :: Int32   =  100
+  const kMaterialRowNum        :: Int32   =  100
+  const kPreheatingStepNum     :: Int32   =  500000
+  const kSampleIntervalSteps   :: Int32   =  100
+  const kSampleNum             :: Int32   =  500000
+  const kMaxTemperature        :: Float16 =  100.0
+  const kMinTemperature        :: Float16 =  1.0
+  const kTemperatureStep       :: Float16 =  0.2
+  const kExternalMagneticField :: Float16 =  1.0
+  const kDataFileName          :: String  =  "ising_Tc-M.data"
 
   magnetic_moment_save_array = Array{Int64}(kSampleNum)
   magnetic_moment_save_array = zeros(magnetic_moment_save_array)
@@ -146,6 +150,7 @@ function main()
   periodicfieldassignment!(material_field)
 
   # Main simulation start
+  external_magnetic_field = kExternalMagneticField
   for current_temperature = kMaxTemperature:-kTemperatureStep:kMinTemperature
     println("")
     println("Temperature      :  ", current_temperature, 
@@ -162,7 +167,8 @@ function main()
       if acceptspinrevers(material_field,
                           random_row_index,
                           random_column_index,
-                          current_temperature)
+                          current_temperature,
+                          external_magnetic_field)
         # filp the spin
         material_field[random_row_index,random_column_index] = 
         material_field[random_row_index,random_column_index] * (-1) 
@@ -180,7 +186,8 @@ function main()
         if acceptspinrevers(material_field,
                             random_row_index,
                             random_column_index,
-                            current_temperature)
+                            current_temperature,
+                            external_magnetic_field)
           # filp the spin
           material_field[random_row_index,random_column_index] = 
           material_field[random_row_index,random_column_index] * (-1) 
