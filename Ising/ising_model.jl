@@ -126,10 +126,10 @@ function main()
   const kPreheatingStepNum     :: Int32   =  500000
   const kSampleIntervalSteps   :: Int32   =  100
   const kSampleNum             :: Int32   =  500000
-  const kMaxTemperature        :: Float16 =  100.0
+  const kMaxTemperature        :: Float16 =  5.0
   const kMinTemperature        :: Float16 =  1.0
   const kTemperatureStep       :: Float16 =  0.2
-  const kExternalMagneticField :: Float16 =  1.0
+  const kExternalMagneticField :: Float16 =  0.1
   const kDataFileName          :: String  =  "ising_Tc-M.data"
 
   magnetic_moment_save_array = Array{Int64}(kSampleNum)
