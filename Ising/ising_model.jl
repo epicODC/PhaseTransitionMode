@@ -165,15 +165,15 @@ function main()
   # Parameter List
   const kMaterialColumnNum         :: Int32   =  100
   const kMaterialRowNum            :: Int32   =  100
-  const kPreheatingStepNum         :: Int32   =  100000000
-  const kSampleIntervalSteps       :: Int32   =  100
-  const kSampleNum                 :: Int32   =  10000000
+  const kPreheatingStepNum         :: Int32   =  100000
+  const kSampleIntervalSteps       :: Int32   =  20
+  const kSampleNum                 :: Int32   =  100000
   const kMaxTemperature            :: Float16 =  6.0
   const kMinTemperature            :: Float16 =  1.0
-  const kTemperatureStep           :: Float16 =  0.1
+  const kTemperatureStep           :: Float16 =  0.2
   const kMaxExternalMagneticField  :: Float16 =  3.0
   const kMinExternalMagneticField  :: Float16 =  -3.0
-  const kExternalMagneticFieldStep :: Float16 =  0.1
+  const kExternalMagneticFieldStep :: Float16 =  0.2
   const kDataFileName              :: String  =  "DATA_ising.txt"
   const kCommandFileName           :: String  =  "PLOT_ising_julia_command.txt"
 
