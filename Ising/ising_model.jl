@@ -23,14 +23,14 @@ function welcomeinterface()
   println("                             Simulation Program")
   println(" ")  
   println("                       LiYang (liyang6pi5@icloud.com)")
-  println("                         Last Update Date: 2018.5.24")
-  println("                               Version: 1.1.0")
+  println("                         Last Update Date: 2018.5.26")
+  println("                               Version: 1.2.0")
   println("                              Copyleft liyang")
   println(" ")
   println("                         Julia 0.6.2 Supported ONLY!")
   println(" ")
   println(" ")
-  println(">>> Calculation Process <<<")
+  println(">>> Calculation Processing <<<")
 end
 
 function periodicfieldassignment!(material_field::Array{Int8,2}) 
@@ -109,11 +109,53 @@ function printprocessbar(finished_task, total_task)
   end
 end
 
-function datawritetofile(temperature, magnetic_moment, data_file_name)
+function datawritetofile(external_magnetic_field,
+                         temperature,
+                         magnetic_moment,
+                         data_file_name)
   data_file = open(data_file_name,"a")
-  output_char = "$(temperature)  \t  $(magnetic_moment)\n"
+  output_char = "$(external_magnetic_field) \t $(temperature) \t $(magnetic_moment)\n"
   write(data_file,output_char)
   close(data_file)
+end
+
+function plot_script_output(temperature_list, 
+                            external_magnetic_field_list, 
+                            data_save_matrix,
+                            command_file_name)
+  println("> Julia Plot Script <")
+  println("============================================")
+  println("")
+  println("using Plots")
+  println("using Rsvg")
+  println("Plots.plotlyjs()")
+  println("X = ",temperature_list)
+  println("Y = ",external_magnetic_field_list)
+  println("Z = ",data_save_matrix)
+  println("fig_handle = Plots.surface(Y,X,Z)")
+  println("#Plots.savefig(fig_handle,\"ising.data.png\")")
+  println("")
+  println("println(\"Plot Complete!\")")
+  println("")
+  println("============================================")
+
+  command_file = open(command_file_name,"w")
+  write(command_file,"> Julia Plot Script <\n")
+  write(command_file,"============================================\n")
+  write(command_file,"\n")
+  write(command_file,"using Plots\n")
+  write(command_file,"using Rsvg\n")
+  write(command_file,"Plots.plotlyjs()\n")
+  write(command_file,"X = $(temperature_list)\n")
+  write(command_file,"Y = $(external_magnetic_field_list)\n")
+  write(command_file,"Z = $(data_save_matrix)\n")
+  write(command_file,"fig_handle = Plots.surface(Y,X,Z)\n")
+  write(command_file,"#Plots.savefig(fig_handle,\"ising.data.png\")\n")
+  write(command_file,"\n")
+  write(command_file,"println(\"Plot Complete!\")\n")
+  write(command_file,"\n")
+  write(command_file,"============================================\n")
+  close(command_file)
 end
 
 ###############################
@@ -121,21 +163,33 @@ end
 ###############################
 function main()
   # Parameter List
-  const kMaterialColumnNum     :: Int32   =  100
-  const kMaterialRowNum        :: Int32   =  100
-  const kPreheatingStepNum     :: Int32   =  500000
-  const kSampleIntervalSteps   :: Int32   =  100
-  const kSampleNum             :: Int32   =  500000
-  const kMaxTemperature        :: Float16 =  5.0
-  const kMinTemperature        :: Float16 =  1.0
-  const kTemperatureStep       :: Float16 =  0.2
-  const kExternalMagneticField :: Float16 =  0.1
-  const kDataFileName          :: String  =  "ising_Tc-M.data"
+  const kMaterialColumnNum         :: Int32   =  100
+  const kMaterialRowNum            :: Int32   =  100
+  const kPreheatingStepNum         :: Int32   =  100000000
+  const kSampleIntervalSteps       :: Int32   =  100
+  const kSampleNum                 :: Int32   =  10000000
+  const kMaxTemperature            :: Float16 =  6.0
+  const kMinTemperature            :: Float16 =  1.0
+  const kTemperatureStep           :: Float16 =  0.1
+  const kMaxExternalMagneticField  :: Float16 =  3.0
+  const kMinExternalMagneticField  :: Float16 =  -3.0
+  const kExternalMagneticFieldStep :: Float16 =  0.1
+  const kDataFileName              :: String  =  "DATA_ising.txt"
+  const kCommandFileName           :: String  =  "PLOT_ising_julia_command.txt"
 
   magnetic_moment_save_array = Array{Int64}(kSampleNum)
   magnetic_moment_save_array = zeros(magnetic_moment_save_array)
   material_field = Array{Int8}(kMaterialRowNum+2,kMaterialColumnNum+2)
   material_field = ones(material_field)
+
+  temperature_list = kMinTemperature:kTemperatureStep:kMaxTemperature
+  external_magnetic_field_list = kMinExternalMagneticField:kExternalMagneticFieldStep:kMaxExternalMagneticField
+
+  data_save_matrix = Array{Float16,2}(length(temperature_list),
+                                      length(external_magnetic_field_list))
+
+  init_data_file = open(kDataFileName,"w")
+  close(init_data_file)
 
   srand()  # random number seed set 
 
@@ -150,38 +204,22 @@ function main()
   periodicfieldassignment!(material_field)
 
   # Main simulation start
-  external_magnetic_field = kExternalMagneticField
-  for current_temperature = kMaxTemperature:-kTemperatureStep:kMinTemperature
-    println("")
-    println("Temperature      :  ", current_temperature, 
-            " \t (",kMaxTemperature," : ",-kTemperatureStep,
-            " : ",kMinTemperature,")")
-
-    # Initial the data save array 
-    magnetic_moment_save_array = zeros(magnetic_moment_save_array)
-    # Preheat
-    for preheat_loop = 1:kPreheatingStepNum 
-      random_row_index = rand(2:kMaterialRowNum+1)
-      random_column_index = rand(2:kMaterialColumnNum+1)
-      # If the reverse can be accecpt
-      if acceptspinrevers(material_field,
-                          random_row_index,
-                          random_column_index,
-                          current_temperature,
-                          external_magnetic_field)
-        # filp the spin
-        material_field[random_row_index,random_column_index] = 
-        material_field[random_row_index,random_column_index] * (-1) 
-      end
-      periodicfieldassignment!(material_field)
-    end
-    
-    # Start sampling 
-    for sample_loop_index = 1:kSampleNum
-      for step_skip_loop = 1:kSampleIntervalSteps
+  data_save_matrix_column_index = 1
+  for external_magnetic_field = external_magnetic_field_list
+    data_save_matrix_row_index = 1
+    for current_temperature = temperature_list
+      println("")
+      println("External Magnetic Field   :  ", external_magnetic_field, 
+              " \t (",kMinExternalMagneticField," : ",kExternalMagneticFieldStep," : ", kMaxExternalMagneticField,")")
+      println("Temperature               :  ", current_temperature, 
+              " \t (",kMaxTemperature," : ",-kTemperatureStep,
+              " : ",kMinTemperature,")")
+      # Initial the data save array 
+      magnetic_moment_save_array = zeros(magnetic_moment_save_array)
+      # Preheat
+      for preheat_loop = 1:kPreheatingStepNum 
         random_row_index = rand(2:kMaterialRowNum+1)
         random_column_index = rand(2:kMaterialColumnNum+1)
-        
         # If the reverse can be accecpt
         if acceptspinrevers(material_field,
                             random_row_index,
@@ -194,20 +232,59 @@ function main()
         end
         periodicfieldassignment!(material_field)
       end
-      magnetic_moment_save_array[sample_loop_index] = 
-                  getmagneticmoment(material_field)
-      printprocessbar(sample_loop_index,kSampleNum)
+      
+      # Start sampling 
+      for sample_loop_index = 1:kSampleNum
+        for step_skip_loop = 1:kSampleIntervalSteps
+          random_row_index = rand(2:kMaterialRowNum+1)
+          random_column_index = rand(2:kMaterialColumnNum+1)
+          
+          # If the reverse can be accecpt
+          if acceptspinrevers(material_field,
+                              random_row_index,
+                              random_column_index,
+                              current_temperature,
+                              external_magnetic_field)
+            # filp the spin
+            material_field[random_row_index,random_column_index] = 
+            material_field[random_row_index,random_column_index] * (-1) 
+          end
+          periodicfieldassignment!(material_field)
+        end
+        magnetic_moment_save_array[sample_loop_index] = 
+                    getmagneticmoment(material_field)
+        printprocessbar(sample_loop_index,kSampleNum)
+      end
+      magnetic_moment = mean(magnetic_moment_save_array)
+
+      datawritetofile(external_magnetic_field,
+                      current_temperature,
+                      magnetic_moment,
+                      kDataFileName)
+
+      data_save_matrix[data_save_matrix_row_index,data_save_matrix_column_index]= magnetic_moment
+
+      println("")
+      println("Magnetic Moment           :  ", magnetic_moment)
+
+      data_save_matrix_row_index += 1
     end
-    magnetic_moment = abs(mean(magnetic_moment_save_array))
-    datawritetofile(current_temperature,magnetic_moment,kDataFileName)
-    println("")
-    println("Magnetic Moment  :  ", magnetic_moment)
+    data_save_matrix_column_index += 1
   end
 
   println("")
-  println(">>> Program Complete! <<<")
   println("> The calculation result has been saved in file: '",
           kDataFileName,"'")
+  println("")
+
+  plot_script_output(temperature_list, 
+                     external_magnetic_field_list, 
+                     data_save_matrix,
+                     kCommandFileName)
+  println("> The julia plot command has been saved in file: '$(kCommandFileName)'")
+
+  println("")
+  println(">>> Program Complete! <<<")
   println("")
 end
 
