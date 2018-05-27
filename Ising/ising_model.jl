@@ -119,10 +119,10 @@ function datawritetofile(external_magnetic_field,
   close(data_file)
 end
 
-function plot_script_output(temperature_list, 
-                            external_magnetic_field_list, 
-                            data_save_matrix,
-                            command_file_name)
+function plotscriptoutput(temperature_list, 
+                          external_magnetic_field_list, 
+                          data_save_matrix,
+                          command_file_name)
   println("> Julia Plot Script <")
   println("============================================")
   println("")
@@ -131,30 +131,52 @@ function plot_script_output(temperature_list,
   println("Plots.plotlyjs()")
   println("X = ",temperature_list)
   println("Y = ",external_magnetic_field_list)
-  println("Z = ",data_save_matrix)
-  println("fig_handle = Plots.surface(Y,X,Z)")
-  println("#Plots.savefig(fig_handle,\"ising.data.png\")")
+  print("Z = [ ")
+  for row_index = 1:size(data_save_matrix)[1]
+    for column_index = 1:round(Int,length(data_save_matrix)/size(data_save_matrix)[1])
+      print(data_save_matrix[row_index,column_index]," ")
+    end
+    if row_index == size(data_save_matrix)[1]
+      print("]\n")
+    else
+      print(";\n")
+      print("      ")
+    end
+  end
+  println("fig_handle = Plots.surface(X,Y,Z')")
+  println("Plots.savefig(fig_handle,\"PICTURE_ising.png\")")
   println("")
   println("println(\"Plot Complete!\")")
   println("")
   println("============================================")
 
   command_file = open(command_file_name,"w")
-  write(command_file,"> Julia Plot Script <\n")
-  write(command_file,"============================================\n")
-  write(command_file,"\n")
+  write(command_file,"#> Julia Plot Script <\n")
+  write(command_file,"#============================================\n")
+  write(command_file,"#\n")
   write(command_file,"using Plots\n")
   write(command_file,"using Rsvg\n")
   write(command_file,"Plots.plotlyjs()\n")
   write(command_file,"X = $(temperature_list)\n")
   write(command_file,"Y = $(external_magnetic_field_list)\n")
-  write(command_file,"Z = $(data_save_matrix)\n")
-  write(command_file,"fig_handle = Plots.surface(Y,X,Z)\n")
-  write(command_file,"#Plots.savefig(fig_handle,\"ising.data.png\")\n")
+  write(command_file,"Z = [ ")
+  for row_index = 1:size(data_save_matrix)[1]
+    for column_index = 1:round(Int,length(data_save_matrix)/size(data_save_matrix)[1])
+      write(command_file,"$(data_save_matrix[row_index,column_index]) ")
+    end
+    if row_index == size(data_save_matrix)[1]
+      write(command_file,"]\n")
+    else
+      write(command_file,";\n")
+      write(command_file,"      ")
+    end
+  end
+  write(command_file,"fig_handle = Plots.surface(X,Y,Z')\n")
+  write(command_file,"Plots.savefig(fig_handle,\"PICTURE_ising.png\")\n")
   write(command_file,"\n")
   write(command_file,"println(\"Plot Complete!\")\n")
   write(command_file,"\n")
-  write(command_file,"============================================\n")
+  write(command_file,"#============================================\n")
   close(command_file)
 end
 
@@ -165,15 +187,15 @@ function main()
   # Parameter List
   const kMaterialColumnNum         :: Int32   =  100
   const kMaterialRowNum            :: Int32   =  100
-  const kPreheatingStepNum         :: Int32   =  100000
-  const kSampleIntervalSteps       :: Int32   =  20
+  const kPreheatingStepNum         :: Int32   =  1000000
+  const kSampleIntervalSteps       :: Int32   =  30
   const kSampleNum                 :: Int32   =  100000
-  const kMaxTemperature            :: Float16 =  6.0
+  const kMaxTemperature            :: Float16 =  8.0
   const kMinTemperature            :: Float16 =  1.0
-  const kTemperatureStep           :: Float16 =  0.2
+  const kTemperatureStep           :: Float16 =  0.1
   const kMaxExternalMagneticField  :: Float16 =  3.0
   const kMinExternalMagneticField  :: Float16 =  -3.0
-  const kExternalMagneticFieldStep :: Float16 =  0.2
+  const kExternalMagneticFieldStep :: Float16 =  0.1
   const kDataFileName              :: String  =  "DATA_ising.txt"
   const kCommandFileName           :: String  =  "PLOT_ising_julia_command.txt"
 
@@ -204,11 +226,17 @@ function main()
   periodicfieldassignment!(material_field)
 
   # Main simulation start
+  total_points_num = 
+    length(external_magnetic_field_list) * length(temperature_list)
+  finished_points_num = 0
   data_save_matrix_column_index = 1
   for external_magnetic_field = external_magnetic_field_list
     data_save_matrix_row_index = 1
     for current_temperature = temperature_list
       println("")
+      finished_points_num += 1
+      println(":: Total Process :: ",finished_points_num,"/",total_points_num, 
+              " --> ", round(finished_points_num/total_points_num*100,2),"% ::")
       println("External Magnetic Field   :  ", external_magnetic_field, 
               " \t (",kMinExternalMagneticField," : ",kExternalMagneticFieldStep," : ", kMaxExternalMagneticField,")")
       println("Temperature               :  ", current_temperature, 
@@ -277,10 +305,10 @@ function main()
           kDataFileName,"'")
   println("")
 
-  plot_script_output(temperature_list, 
-                     external_magnetic_field_list, 
-                     data_save_matrix,
-                     kCommandFileName)
+  plotscriptoutput(temperature_list, 
+                   external_magnetic_field_list, 
+                   data_save_matrix,
+                   kCommandFileName)
   println("> The julia plot command has been saved in file: '$(kCommandFileName)'")
 
   println("")
