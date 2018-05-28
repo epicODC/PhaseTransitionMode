@@ -28,11 +28,11 @@ function welcomeinterface()
   println(" ")
   println("                        Percollation Phase Transition ")
   println("                             Simulation Program")
-  println("                             (Speed Algorithem)")
+  println("                              (Maze Algorithem)")
   println(" ")  
   println("                       LiYang (liyang6pi5@icloud.com)")
-  println("                         Last Update Date: 2018.5.22")
-  println("                               Version: 1.1.0")
+  println("                         Last Update Date: 2018.5.28")
+  println("                               Version: 1.2.0")
   println("                              Copyleft liyang")
   println(" ")
   println("                         Julia 0.6.2 Supported ONLY!")
@@ -87,7 +87,7 @@ end
 ########
 function mazewaytocheck(enlarge_material_field::Array{Int8,2},
                              current_row_index::Int64,
-                          current_column_index::Int64)::Bool
+                          current_column_index::Int64)
 #=
   # origin algorithem (easy to understand)
   test_direction_order = [[0,-1],  # go left
@@ -158,23 +158,29 @@ function mazewaytocheck(enlarge_material_field::Array{Int8,2},
     end
 
     if current_row_index == 3
-      break
+      return false, current_column_index
     elseif current_row_index == size(enlarge_material_field)[1]-3
-      return true
+      return true, current_column_index
     end 
   end
-
-  return false
 end
 
 ########
 function patternispermeable(material_field::Array{Int8,2})::Bool
   enlarge_material_field = enlargethefield(material_field)
   init_row_index = 3
-  for column_index = init_row_index:2:size(enlarge_material_field)[2]-3
-    if enlarge_material_field[init_row_index,column_index] == 0 &&  
-       mazewaytocheck(enlarge_material_field,init_row_index,column_index)
-      return true
+  column_index = 3
+  #for column_index = init_row_index:2:size(enlarge_material_field)[2]-3
+  while column_index <= size(enlarge_material_field)[2]-3
+    if enlarge_material_field[init_row_index,column_index] == 0  
+      is_get_through, last_final_column_index = 
+        mazewaytocheck(enlarge_material_field,init_row_index,column_index)
+      if is_get_through
+        return true
+      end
+      column_index = last_final_column_index + 1
+    else
+      column_index += 2
     end
   end
 
